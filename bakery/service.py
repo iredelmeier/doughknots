@@ -1,7 +1,7 @@
 from asyncio import Lock
 from typing import Dict, Mapping
 
-from exceptions.server import ServiceUnavailableError
+from exceptions import ServiceUnavailableError
 
 from .kind import Kind
 from .bakery import Bakery

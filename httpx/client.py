@@ -4,8 +4,7 @@ from types import TracebackType
 from aiohttp import ClientSession, ClientTimeout
 from aiohttp.hdrs import METH_GET, METH_POST, METH_DELETE, METH_PUT
 
-import exceptions.client
-import exceptions.server
+import exceptions
 
 
 JSONDecoder = Callable[[str], Any]
@@ -83,12 +82,12 @@ class Client:
                 return await res.json()
             if res.status >= 400 and res.status < 500:
                 if res.status == 400:
-                    raise exceptions.client.BadRequestError
+                    raise exceptions.BadRequestError
                 if res.status == 404:
-                    raise exceptions.client.NotFoundError
-                raise exceptions.client.UnknownError
+                    raise exceptions.NotFoundError
+                raise exceptions.UnhandledClientError
             if res.status >= 500 and res.status < 600:
                 if res.status == 503:
-                    raise exceptions.server.ServiceUnavailableError
-            # assume it's the server that's dun goofed
-            raise exceptions.server.UnknownError
+                    raise exceptions.ServiceUnavailableError
+                raise exceptions.UnhandledServerError
+            raise exceptions.UnknownError

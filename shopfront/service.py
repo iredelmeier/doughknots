@@ -1,7 +1,7 @@
 from typing import Mapping
 
 from bakery import Bakery, Kind, NoopBakery
-from exceptions.server import ServiceUnavailableError
+from exceptions import ServiceUnavailableError
 
 from .shopfront import ShopFront
 

@@ -1,6 +1,6 @@
 from typing import Any
 
-from exceptions.server import ServiceUnavailableError
+from exceptions import ServiceUnavailableError
 from httpx import Blueprint
 from httpx.response import abort, respond
 

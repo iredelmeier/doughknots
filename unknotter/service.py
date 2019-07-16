@@ -1,6 +1,7 @@
 from asyncio.locks import Lock
 from typing import List, Mapping, Set
 
+import exceptions
 from trace import Span
 
 from .unknotter import Unknotter
@@ -18,3 +19,10 @@ class Service(Unknotter):
     async def operation_names(self) -> Set[str]:
         async with self.__lock:
             return set(self.__traces.keys())
+
+    async def most_recent(self, operation_name: str) -> List[SpanData]:
+        async with self.__lock:
+            traces = self.__traces[operation_name]
+
+            if not traces:
+                raise exceptions.NotFoundError
