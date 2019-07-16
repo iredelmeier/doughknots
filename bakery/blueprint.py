@@ -1,9 +1,8 @@
 from typing import Any
 
-from sanic.exceptions import InvalidUsage, NotFound, ServiceUnavailable
-from sanic.response import json
-
 from httpx import Blueprint
+from httpx.response import respond
+from httpx.exceptions import abort
 
 from .bakery import Bakery, NoopBakery
 from .exceptions import InsufficientDoughknots
@@ -21,7 +20,7 @@ def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
         try:
             k = Kind[kind]
         except KeyError:
-            raise NotFound("Not found")
+            abort(404)
 
         try:
             amount = body
@@ -29,11 +28,11 @@ def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
             assert isinstance(amount, int)
             assert amount >= 0
         except AssertionError:
-            raise InvalidUsage("Invalid usage")
+            abort(400)
 
         await client.bake(k, amount)
 
-        return json(None)
+        return respond(None, status=204)
 
     @blueprint.delete("/<kind>")
     async def take(req: Any, kind: str) -> Any:
@@ -42,7 +41,7 @@ def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
         try:
             k = Kind[kind]
         except KeyError:
-            raise NotFound("Not found")
+            abort(404)
 
         try:
             amount = int(body.get("amount", [1][0]))
@@ -50,18 +49,18 @@ def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
             assert isinstance(amount, int)
             assert amount >= 0
         except AssertionError:
-            raise InvalidUsage("Invalid usage")
+            abort(400)
 
         try:
             await client.take(k, amount)
         except InsufficientDoughknots:
-            raise ServiceUnavailable("Service unavailable")
+            abort(503)
 
-        return json(None)
+        return respond(None, status=204)
 
     @blueprint.get("/")
     async def get(req: Any) -> Any:
         inventory = await client.inventory()
-        return json(inventory)
+        return respond(inventory)
 
     return blueprint

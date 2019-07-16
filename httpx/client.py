@@ -87,5 +87,7 @@ class Client:
                     raise exceptions.NotFoundError
                 raise exceptions.UnknownClientError
             if res.status >= 500 and res.status < 600:
+                if res.status == 503:
+                    raise exceptions.ServiceUnavailableError
                 raise exceptions.UnknownServerError
             raise exceptions.UnknownError

@@ -12,8 +12,12 @@ import shopfront.blueprint
 
 
 def main() -> None:
+    asyncio.set_event_loop(uvloop.new_event_loop())
+
     http_session = Client()
-    bakery_client = bakery.HttpClient("http://localhost:8000", client=http_session)
+    bakery_client = bakery.HttpClient(
+        "http://localhost:8000/bakery", client=http_session
+    )
 
     bakery_service = bakery.Service()
     shopfront_service = shopfront.service.Service(bakery=bakery_client)
@@ -23,10 +27,8 @@ def main() -> None:
 
     app = Sanic()
 
-    app.blueprint(bakery_blueprint)
-    app.blueprint(shopfront_blueprint)
-
-    asyncio.set_event_loop(uvloop.new_event_loop())
+    app.blueprint(bakery_blueprint, url_prefix="/bakery")
+    app.blueprint(shopfront_blueprint, url_prefix="/shopfront")
 
     server = app.create_server(
         host="127.0.0.1", port=8000, return_asyncio_server=True, debug=True

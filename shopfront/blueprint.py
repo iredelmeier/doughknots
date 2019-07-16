@@ -1,9 +1,8 @@
 from typing import Any
 
-from sanic.exceptions import InvalidUsage, NotFound
-from sanic.response import json
-
 from httpx import Blueprint
+from httpx.response import respond
+from httpx.exceptions import abort
 
 from bakery import Kind
 
@@ -21,22 +20,22 @@ def factory(name: str = __name__, shopfront: ShopFront = None) -> Blueprint:
         try:
             assert isinstance(body, dict)
         except AssertionError:
-            raise InvalidUsage("Invalid usage")
+            abort(400)
 
         for k, v in body.items():
             try:
                 Kind[k]
             except KeyError:
-                raise NotFound("Not found")
+                abort(404)
 
             try:
                 assert isinstance(v, int)
                 assert v >= 0
             except AssertionError:
-                raise InvalidUsage("Invalid usage")
+                abort(400)
 
         await client.order(body)
 
-        return json(None)
+        return respond(None, status=204)
 
     return blueprint

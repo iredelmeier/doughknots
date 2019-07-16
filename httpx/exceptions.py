@@ -1,11 +1,13 @@
 from abc import ABC
 
+import sanic.exceptions
+
+
+def abort(code: int) -> None:
+    sanic.exceptions.abort(code)
+
 
 class ClientException(ABC, Exception):
-    pass
-
-
-class ServerException(ABC, Exception):
     pass
 
 
@@ -18,6 +20,14 @@ class NotFoundError(ClientException):
 
 
 class UnknownClientError(ClientException):
+    pass
+
+
+class ServerException(ABC, Exception):
+    pass
+
+
+class ServiceUnavailableError(ServerException):
     pass
 
 
