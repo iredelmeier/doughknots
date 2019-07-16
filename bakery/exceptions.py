@@ -1,6 +1,6 @@
-from . import Kind
+from .kind import Kind
 
 
-class InsufficientDoughnuts(Exception):
+class InsufficientDoughknots(Exception):
     def __init__(self, kind: Kind):
-        super().__init__(f"Insufficient doughnuts of kind {kind}")
+        super().__init__(f"Insufficient doughknots of kind {kind}")

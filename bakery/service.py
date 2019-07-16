@@ -2,9 +2,9 @@ from asyncio import Lock
 from typing import Dict, Mapping
 
 
-from . import Kind
-from .Client import Client
-from .exceptions import InsufficientDoughnuts
+from .kind import Kind
+from .client import Client
+from .exceptions import InsufficientDoughknots
 
 
 class Service(Client):
@@ -22,7 +22,7 @@ class Service(Client):
     async def take(self, kind: Kind, amount: int = 1) -> None:
         async with self.__lock:
             if self.__inventory[kind] < amount:
-                raise InsufficientDoughnuts(kind)
+                raise InsufficientDoughknots(kind)
             self.__inventory[kind] -= amount
 
     async def inventory(self) -> Mapping[Kind, int]:

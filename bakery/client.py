@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict, Mapping
+from typing import Mapping
 
 import httpx
 
@@ -26,14 +26,12 @@ class HttpClient(Client):
         self.__client = client if client else httpx.Client()
 
     async def bake(self, kind: Kind, amount: int = 1) -> None:
-        body = {"kind": kind, "amount": amount}
-
-        await self.__client.post(self.__host, body=body)
+        await self.__client.post(f"{self.__host}/{kind}", body=amount)
 
     async def take(self, kind: Kind, amount: int = 1) -> None:
-        params = {"kind": str(kind), "amount": str(amount)}
+        params = {"amount": str(amount)}
 
-        await self.__client.delete(self.__host, params)
+        await self.__client.delete(f"{self.__host}/{kind}", params)
 
     async def inventory(self) -> Mapping[Kind, int]:
         inventory = await self.__client.get(self.__host)
