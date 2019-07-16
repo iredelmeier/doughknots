@@ -5,14 +5,13 @@ from sanic.response import json
 
 from httpx import Blueprint
 
-from .bakery import Bakery
+from .bakery import Bakery, NoopBakery
 from .exceptions import InsufficientDoughknots
 from .kind import Kind
-from .service import Service
 
 
 def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
-    client = bakery if bakery else Service()
+    client = bakery if bakery else NoopBakery()
     blueprint = Blueprint(name)
 
     @blueprint.post("/<kind>")
@@ -29,7 +28,7 @@ def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
 
             assert isinstance(amount, int)
             assert amount >= 0
-        except Exception:
+        except AssertionError:
             raise InvalidUsage("Invalid usage")
 
         await client.bake(k, amount)
@@ -50,7 +49,7 @@ def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
 
             assert isinstance(amount, int)
             assert amount >= 0
-        except Exception:
+        except AssertionError:
             raise InvalidUsage("Invalid usage")
 
         try:

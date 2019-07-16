@@ -1,4 +1,3 @@
-from typing import Any, Optional
 from enum import Enum, auto
 
 
@@ -15,12 +14,6 @@ class Kind(Enum):
     sugar = auto()
     vanilla_dip = auto()
     vanilla_dip_with_sprinkles = auto()
-
-    @classmethod
-    def from_str(cls, label: str) -> Optional[Any]:
-        name = label.upper().replace(" ", "_")
-
-        return cls.__members__.get(name)
 
     def __str__(self) -> str:
         return self.name.lower()

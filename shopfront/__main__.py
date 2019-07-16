@@ -14,7 +14,9 @@ def main() -> None:
 
     asyncio.set_event_loop(uvloop.new_event_loop())
 
-    server = app.create_server(host="127.0.0.1", port=8000, return_asyncio_server=True)
+    server = app.create_server(
+        host="127.0.0.1", port=8000, return_asyncio_server=True, debug=True
+    )
 
     loop = asyncio.get_event_loop()
     _ = asyncio.ensure_future(server)
