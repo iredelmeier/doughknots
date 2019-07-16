@@ -1,17 +1,18 @@
 from abc import abstractmethod
+from contextvars import ContextVar
 from types import TracebackType
 from typing import Optional, Type
 
-from .span import Span
+from .spandata import SpanData
 
 
 class Exporter:
     @abstractmethod
-    async def __enter__(self) -> "Exporter":
+    def __enter__(self) -> "Exporter":
         pass
 
     @abstractmethod
-    async def __exit__(
+    def __exit__(
         self,
         exc_type: Optional[Type[BaseException]],
         exc_val: Optional[BaseException],
@@ -20,23 +21,32 @@ class Exporter:
         pass
 
     @abstractmethod
-    async def __aenter__(self) -> "Exporter":
-        pass
-
-    @abstractmethod
-    async def __aexit__(
-        self,
-        exc_type: Optional[Type[BaseException]],
-        exc_val: Optional[BaseException],
-        exc_tb: Optional[TracebackType],
-    ) -> None:
-        pass
-
-    @abstractmethod
-    def export(self, span: Span) -> None:
+    def export(self, span: SpanData) -> None:
         pass
 
 
 class NoopExporter(Exporter):
-    def export(self, span: Span) -> None:
+    def __enter__(self) -> Exporter:
         pass
+
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        pass
+
+    def export(self, span: SpanData) -> None:
+        pass
+
+
+__EXPORTER: ContextVar[Exporter] = ContextVar("exporter")
+
+
+def get_exporter() -> Exporter:
+    return __EXPORTER.get(NoopExporter())
+
+
+def set_exporter(exporter: Exporter) -> None:
+    __EXPORTER.set(exporter)

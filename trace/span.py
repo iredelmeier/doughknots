@@ -5,7 +5,7 @@ from .spancontext import SpanContext
 
 
 @dataclass(frozen=True)
-class Span:
+class SpanData:
     operation_name: str
     span_context: SpanContext
     parent_span_id: Optional[str]

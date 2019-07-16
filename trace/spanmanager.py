@@ -1,10 +1,34 @@
 from contextvars import ContextVar
 from time import time_ns
-from typing import List, Optional
+from types import TracebackType
+from typing import List, Optional, Type
 
-from .exporter import Exporter
-from .span import Span
+from .exporter import get_exporter
+from .spandata import SpanData
 from .spancontext import SpanContext
+
+__SPANS: ContextVar[List["__Span"]] = ContextVar("tracer")
+
+
+class SpanManager:
+    def __init__(
+        self, operation_name: str, parent: SpanContext = None, start_time: int = None
+    ) -> None:
+        start_span(operation_name, parent=parent, start_time=start_time)
+
+    def __enter__(self) -> None:
+        pass
+
+    def __exit__(
+        self,
+        exc_type: Optional[Type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        self.finish()
+
+    def finish(self, finish_time: int = None) -> None:
+        finish_span(finish_time)
 
 
 class __Span:
@@ -19,24 +43,17 @@ class __Span:
         self.start_time = start_time if start_time else time_ns()
         self.finish_time: Optional[int] = None
 
-    def finish(self, finish_time: int = None) -> Span:
+    def finish(self, finish_time: int = None) -> SpanData:
         if not self.finish_time:
             self.finish_time = finish_time if finish_time else time_ns()
 
-        return Span(
+        return SpanData(
             operation_name=self.operation_name,
             span_context=self.span_context,
             parent_span_id=self.parent_span_id,
             start_time=self.start_time,
             finish_time=self.finish_time,
         )
-
-
-#  __EXPORTER: ContextVar[Exporter] = ContextVar("exporter")
-#  __SPANS: ContextVar[List[__Span]] = ContextVar("spans")
-
-
-__TRACER: ContextVar[Tracer] = ContextVar("tracer")
 
 
 def start_span(
@@ -62,3 +79,6 @@ def finish_span(finish_time: int = None) -> None:
         span = spans.pop()
 
         s = span.finish(finish_time=finish_time)
+
+        with get_exporter() as exporter:
+            exporter.export(s)
