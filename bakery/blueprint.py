@@ -1,11 +1,10 @@
 from typing import Any
 
+from exceptions.server import ServiceUnavailableError
 from httpx import Blueprint
-from httpx.response import respond
-from httpx.exceptions import abort
+from httpx.response import abort, respond
 
 from .bakery import Bakery, NoopBakery
-from .exceptions import InsufficientDoughknots
 from .kind import Kind
 
 
@@ -53,7 +52,7 @@ def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
 
         try:
             await client.take(k, amount)
-        except InsufficientDoughknots:
+        except ServiceUnavailableError:
             abort(503)
 
         return respond(None, status=204)

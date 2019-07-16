@@ -1,9 +1,8 @@
 from typing import Mapping
 
-from httpx import Client, exceptions
+from httpx import Client
 
 from .bakery import Bakery
-from .exceptions import InsufficientDoughknots
 from .kind import Kind
 
 
@@ -18,10 +17,7 @@ class HttpClient(Bakery):
     async def take(self, kind: Kind, amount: int = 1) -> None:
         params = {"amount": str(amount)}
 
-        try:
-            await self.__client.delete(f"{self.__host}/{kind}", params)
-        except exceptions.ServiceUnavailableError:
-            raise InsufficientDoughknots(kind)
+        await self.__client.delete(f"{self.__host}/{kind}", params)
 
     async def inventory(self) -> Mapping[Kind, int]:
         inventory = await self.__client.get(self.__host)

@@ -1,10 +1,10 @@
 from asyncio import Lock
 from typing import Dict, Mapping
 
+from exceptions.server import ServiceUnavailableError
 
 from .kind import Kind
 from .bakery import Bakery
-from .exceptions import InsufficientDoughknots
 
 
 class Service(Bakery):
@@ -22,7 +22,7 @@ class Service(Bakery):
     async def take(self, kind: Kind, amount: int = 1) -> None:
         async with self.__lock:
             if self.__inventory[kind] < amount:
-                raise InsufficientDoughknots(kind)
+                raise ServiceUnavailableError
             self.__inventory[kind] -= amount
 
     async def inventory(self) -> Mapping[Kind, int]:

@@ -1,7 +1,7 @@
 from typing import Mapping
 
 from bakery import Bakery, Kind, NoopBakery
-from bakery.exceptions import InsufficientDoughknots
+from exceptions.server import ServiceUnavailableError
 
 from .shopfront import ShopFront
 
@@ -17,7 +17,7 @@ class Service(ShopFront):
             for kind, amount in list(o.items()):
                 try:
                     await self.__bakery.take(kind, amount)
-                except InsufficientDoughknots:
+                except ServiceUnavailableError:
                     await self.__bakery.bake(kind, amount)
 
                 del o[kind]

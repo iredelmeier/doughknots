@@ -1,19 +1,19 @@
-import abc
+from abc import abstractmethod
 from typing import Mapping
 
 from .kind import Kind
 
 
 class Bakery:
-    @abc.abstractmethod
+    @abstractmethod
     async def bake(self, kind: Kind, amount: int = 1) -> None:
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     async def take(self, kind: Kind, amount: int = 1) -> None:
         pass
 
-    @abc.abstractmethod
+    @abstractmethod
     async def inventory(self) -> Mapping[Kind, int]:
         pass
 

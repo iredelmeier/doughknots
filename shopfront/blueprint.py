@@ -1,8 +1,7 @@
 from typing import Any
 
 from httpx import Blueprint
-from httpx.response import respond
-from httpx.exceptions import abort
+from httpx.response import abort, respond
 
 from bakery import Kind
 
