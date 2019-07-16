@@ -3,11 +3,11 @@ from typing import Dict, Mapping
 
 
 from .kind import Kind
-from .client import Client
+from .bakery import Bakery
 from .exceptions import InsufficientDoughknots
 
 
-class Service(Client):
+class Service(Bakery):
     def __init__(self) -> None:
         self.__lock = Lock()
         self.__inventory: Dict[Kind, int] = {}

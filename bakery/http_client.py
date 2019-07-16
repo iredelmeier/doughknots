@@ -1,29 +1,15 @@
-from abc import abstractmethod
 from typing import Mapping
 
-import httpx
+from httpx import Client
 
+from .bakery import Bakery
 from .kind import Kind
 
 
-class Client:
-    @abstractmethod
-    async def bake(self, kind: Kind, amount: int = 1) -> None:
-        pass
-
-    @abstractmethod
-    async def take(self, kind: Kind, amount: int = 1) -> None:
-        pass
-
-    @abstractmethod
-    async def inventory(self) -> Mapping[Kind, int]:
-        pass
-
-
-class HttpClient(Client):
-    def __init__(self, host: str, client: httpx.Client = None) -> None:
+class HttpClient(Bakery):
+    def __init__(self, host: str, client: Client = None) -> None:
         self.__host = host
-        self.__client = client if client else httpx.Client()
+        self.__client = client if client else Client()
 
     async def bake(self, kind: Kind, amount: int = 1) -> None:
         await self.__client.post(f"{self.__host}/{kind}", body=amount)

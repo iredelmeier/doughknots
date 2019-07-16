@@ -5,17 +5,14 @@ from sanic.response import json
 
 from httpx import Blueprint
 
-from .client import Client
+from .bakery import Bakery
 from .exceptions import InsufficientDoughknots
 from .kind import Kind
 from .service import Service
 
 
-def factory(name: str = __name__, bakery: Client = None) -> Blueprint:
-    if bakery:
-        client = bakery
-    else:
-        client = Service()
+def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
+    client = bakery if bakery else Service()
     blueprint = Blueprint(name)
 
     @blueprint.post("/<kind>")
