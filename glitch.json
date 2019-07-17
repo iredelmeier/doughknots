@@ -1,0 +1,17 @@
+{
+  "install": "./bash.sh",
+  "start": "TODO",
+  "watch": {
+    "ignore": [
+      "\\.pyc$"
+    ],
+    "restart": {
+      "include": [
+        "\\.py$",
+        "^start\\.sh"
+      ]
+    },
+    "throttle": 1000
+  }
+}
+
