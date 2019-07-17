@@ -4,13 +4,15 @@ from signal import signal, SIGINT
 
 from sanic import Sanic
 
-from . import blueprint
+from . import blueprint, Service
 
 
 def main() -> None:
     app = Sanic()
 
-    app.blueprint(blueprint.factory())
+    unknotter = Service()
+
+    app.blueprint(blueprint.factory(unknotter=unknotter))
 
     asyncio.set_event_loop(uvloop.new_event_loop())
 

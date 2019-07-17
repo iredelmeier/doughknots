@@ -1,6 +1,5 @@
-from typing import Any
+from typing import Any, Optional
 
-from exceptions import ServiceUnavailableError
 from httpx import Blueprint
 from httpx.response import abort, respond
 from trace import SpanContext, SpanData
@@ -24,23 +23,24 @@ def factory(name: str = __name__, unknotter: Unknotter = None) -> Blueprint:
 
         try:
             assert isinstance(body, dict)
-            operation_name = body.get("operation_name", "")
+            operation_name = body["operation_name"]
             assert isinstance(operation_name, str)
-            sc = body.get("span_context", {})
+            sc = body["span_context"]
             assert isinstance(sc, dict)
-            trace_id = sc.get("trace_id", "")
+            trace_id = sc["trace_id"]
             assert isinstance(trace_id, str)
-            span_id = sc.get("span_id", "")
+            span_id = sc["span_id"]
             assert isinstance(span_id, str)
-            parent_span_id = body.get("parent_span_id", None)
-            assert isinstance(parent_span_id, str)
-            start_time = body.get("start_time", 0)
+            parent_span_id = body["parent_span_id"]
+            if parent_span_id:
+                assert isinstance(parent_span_id, str)
+            start_time = body["start_time"]
             assert isinstance(start_time, int)
             assert start_time >= 0
-            finish_time = body.get("finish_timee", 0)
+            finish_time = body["finish_time"]
             assert isinstance(finish_time, int)
             assert finish_time >= 0
-        except AssertionError:
+        except (KeyError, AssertionError):
             abort(400)
 
         span_context = SpanContext(trace_id=trace_id, span_id=span_id)
