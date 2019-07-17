@@ -5,6 +5,7 @@ from typing import Deque, Dict, List, Mapping, Set
 import exceptions
 from trace import SpanData
 
+from .selector import Selector
 from .unknotter import Unknotter
 
 DEFAULT_MAX_SPANS = 5000
@@ -22,7 +23,11 @@ class Service(Unknotter):
         self.__spans: Dict[str, SpanData] = {}
         self.__span_ids_by_operation_names: Dict[str, Set[str]] = {}
 
-    async def export(self, span: SpanData) -> None:
+    async def operation_names(self) -> Set[str]:
+        async with self.__lock:
+            return set(self.__span_ids_by_operation_names.keys())
+
+    async def add(self, span: SpanData) -> None:
         async with self.__lock:
             trace_id = span.span_context.trace_id
             span_id = span.span_context.span_id
@@ -44,30 +49,21 @@ class Service(Unknotter):
             self.__spans[span_id] = span
             self.__span_ids_by_operation_names[operation_name].add(span_id)
 
-    async def most_recent(self, operation_name: str) -> List[SpanData]:
+    async def get(
+        self, operation_name: str, selector: Selector = None
+    ) -> List[SpanData]:
         async with self.__lock:
             spans = self.__spans_by_operation_name(operation_name)
-            sorted_spans = sorted(
-                spans, key=lambda span: span.finish_time, reverse=True
-            )
-            most_recent_span = sorted_spans[0]
-            trace_id = most_recent_span.span_context.trace_id
 
-            return self.__trace(trace_id)
+            if selector == Selector.fastest:
+                sorted_spans = sorted(spans, key=lambda span: span.duration)
+            elif selector == Selector.slowest:
+                sorted_spans = sorted(spans, key=lambda span: span.duration)
+            else:
+                sorted_spans = sorted(
+                    spans, key=lambda span: span.finish_time, reverse=True
+                )
 
-    async def fastest(self, operation_name: str) -> List[SpanData]:
-        async with self.__lock:
-            spans = self.__spans_by_operation_name(operation_name)
-            sorted_spans = sorted(spans, key=lambda span: span.duration)
-            most_recent_span = sorted_spans[0]
-            trace_id = most_recent_span.span_context.trace_id
-
-            return self.__trace(trace_id)
-
-    async def slowest(self, operation_name: str) -> List[SpanData]:
-        async with self.__lock:
-            spans = self.__spans_by_operation_name(operation_name)
-            sorted_spans = sorted(spans, key=lambda span: span.duration)
             most_recent_span = sorted_spans[0]
             trace_id = most_recent_span.span_context.trace_id
 

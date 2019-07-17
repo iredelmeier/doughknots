@@ -35,7 +35,7 @@ def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
 
     @blueprint.delete("/<kind>")
     async def take(req: Any, kind: str) -> Any:
-        body = req.args
+        args = req.args
 
         try:
             k = Kind[kind]
@@ -43,11 +43,11 @@ def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
             abort(404)
 
         try:
-            amount = int(body.get("amount", [1][0]))
+            amount = int(args["amount"][0])
 
             assert isinstance(amount, int)
             assert amount >= 0
-        except AssertionError:
+        except (KeyError, ValueError, AssertionError):
             abort(400)
 
         try:
@@ -58,7 +58,7 @@ def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
         return respond(None, status=204)
 
     @blueprint.get("/")
-    async def get(req: Any) -> Any:
+    async def inventory(req: Any) -> Any:
         inventory = await client.inventory()
         return respond(inventory)
 

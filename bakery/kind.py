@@ -16,4 +16,4 @@ class Kind(Enum):
     vanilla_dip_with_sprinkles = auto()
 
     def __str__(self) -> str:
-        return self.name.lower()
+        return self.name
