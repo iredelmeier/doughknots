@@ -5,7 +5,7 @@ from httpx import Blueprint
 from httpx.response import abort, respond
 from trace import SpanContext, SpanData
 
-from .kind import Kind
+from .selector import Selector
 from .unknotter import Unknotter, NoopUnknotter
 
 
@@ -64,7 +64,7 @@ def factory(name: str = __name__, unknotter: Unknotter = None) -> Blueprint:
             operation_name = args["operation_name"][0]
             assert isinstance(operation_name, str)
 
-            selector = Kind[args.get("selector", ["most_recent"])[0]]
+            selector = Selector[args.get("selector", ["most_recent"])[0]]
         except (KeyError, ValueError, AssertionError):
             abort(400)
 
