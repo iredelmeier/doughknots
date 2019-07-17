@@ -1,5 +1,6 @@
-from typing import Any, Optional
+from typing import Any
 
+import exceptions
 from httpx import Blueprint
 from httpx.response import abort, respond
 from trace import SpanContext, SpanData
@@ -64,11 +65,15 @@ def factory(name: str = __name__, unknotter: Unknotter = None) -> Blueprint:
             operation_name = args["operation_name"][0]
             assert isinstance(operation_name, str)
 
-            selector = Selector[args.get("selector", ["most_recent"])[0]]
+            selector_arg = args["selector"][0]
+            selector = Selector[selector_arg]
         except (KeyError, ValueError, AssertionError):
             abort(400)
 
-        trace = await client.get(operation_name, selector=selector)
+        try:
+            trace = await client.get(operation_name, selector=selector)
+        except exceptions.NotFoundError:
+            abort(404)
 
         return respond(trace)
 
