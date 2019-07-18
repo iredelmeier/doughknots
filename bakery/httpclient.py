@@ -11,10 +11,10 @@ class HttpClient(Bakery):
         self.__host = host
         self.__client = client if client else Client()
 
-    async def bake(self, kind: Kind, amount: int = 1) -> None:
-        await self.__client.post(f"{self.__host}/{kind}", body=amount)
+    async def bake(self, span, kind: Kind, amount: int = 1) -> None:
+        await self.__client.post(span, f"{self.__host}/{kind}", body=amount)
 
-    async def take(self, kind: Kind, amount: int = 1) -> None:
+    async def take(self, span, kind: Kind, amount: int = 1) -> None:
         params = {"amount": str(amount)}
 
         await self.__client.delete(f"{self.__host}/{kind}", params=params)

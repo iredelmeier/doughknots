@@ -1,4 +1,4 @@
-from asyncio import Lock
+from asyncio import sleep, Lock
 from typing import Dict, Mapping
 
 from exceptions import ServiceUnavailableError
@@ -17,6 +17,7 @@ class Service(Bakery):
 
     async def bake(self, kind: Kind, amount: int = 1) -> None:
         async with self.__lock:
+            await sleep(1)
             self.__inventory[kind] += amount
 
     async def take(self, kind: Kind, amount: int = 1) -> None:

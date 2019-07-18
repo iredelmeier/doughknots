@@ -12,6 +12,9 @@ class Blueprint:
     def name(self) -> Any:
         return self.__blueprint.name
 
+    def middleware(self, middleware_type):
+        return self.__blueprint.middleware(middleware_type)
+
     def register(self, app: Any, options: Mapping[Any, Any] = None) -> None:
         self.__blueprint.register(app, options)
 

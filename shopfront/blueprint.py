@@ -1,5 +1,7 @@
 from typing import Any
 
+import opentracing
+
 from httpx import Blueprint
 from httpx.response import abort, respond
 
@@ -35,6 +37,7 @@ def factory(name: str = __name__, shopfront: ShopFront = None) -> Blueprint:
 
         await client.order(body)
 
-        return respond(None, status=204)
+        res = respond(None, status=204)
+        return res
 
     return blueprint

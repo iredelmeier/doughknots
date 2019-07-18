@@ -50,6 +50,15 @@ def main() -> None:
     app.blueprint(shopfront_blueprint, url_prefix="/shopfront")
     app.blueprint(unknotter_blueprint, url_prefix="/unknotter")
 
+    @app.middleware("request")
+    def start_span(request):
+        tracer = opentracing.global_tracer()
+        request["span"] = tracer.start_span(request.path)
+
+    @app.middleware("response")
+    def finish_span(request, response):
+        request["span"].finish()
+
     server = app.create_server(
         host="127.0.0.1", port=8000, return_asyncio_server=True, debug=True
     )

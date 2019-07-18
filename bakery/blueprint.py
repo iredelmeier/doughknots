@@ -1,5 +1,7 @@
 from typing import Any
 
+import opentracing
+
 from exceptions import ServiceUnavailableError
 from httpx import Blueprint
 from httpx.response import abort, respond
@@ -31,10 +33,12 @@ def factory(name: str = __name__, bakery: Bakery = None) -> Blueprint:
 
         await client.bake(k, amount)
 
-        return respond(None, status=204)
+        res = respond(None, status=204)
+        return res
 
     @blueprint.delete("/<kind>")
     async def take(req: Any, kind: str) -> Any:
+        req["span"].operation_name = "/bakery/<kind>"
         args = req.args
 
         try:
